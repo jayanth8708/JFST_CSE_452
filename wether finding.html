@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            width: 50%;
+            margin: auto;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        input {
+            padding: 10px;
+            width: 80%;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #ff7eb3;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #ff5277;
+        }
+
+        #weatherInfo {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: none; /* Hide initially */
+        }
+    </style>
+</head>
+<body>
+    <h1>Alliance Weather Finder</h1>
+    <input type="text" id="city" placeholder="Enter City Name">
+    <button id="getWeather">Get Current Weather</button>
+
+    <div id="weatherInfo">
+        <h2>Weather Information</h2>
+        <p id="weather"></p> 
+    </div>
+    <script>
+        const apikey = {
+            key: "0dd7106e5daf07e031afe93584361d19",
+            base: "https://api.openweathermap.org/data/2.5/weather"
+        };
+
+        const searchInput = document.querySelector('#city');
+        const searchButton = document.querySelector('#getWeather');
+
+        searchButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            getWeather(searchInput.value);
+        });
+
+        function getWeather(city) {
+            if (!city) {
+                alert("Please enter a city name");
+                return;
+            }
+
+            fetch(`${apikey.base}?q=${city}&appid=${apikey.key}&units=metric`) // Corrected template literal
+                .then(response => response.json())
+                .then(data => showWeather(data))
+                .catch(error => console.error("Error fetching weather data:", error));
+        }
+
+        function showWeather(data) {
+            if (data.cod !== 200) {
+                alert("City not found. Please enter a valid city name.");
+                return;
+            }
+
+            document.getElementById('weatherInfo').style.display = 'block'; // Show the weather info
+            document.getElementById('weatherInfo').innerHTML = `
+                <h2>Weather Information for ${data.name}</h2>
+                <p>Temperature: ${data.main.temp}°C</p>
+                <p>Humidity: ${data.main.humidity}%</p>
+                <p>Wind Speed: ${data.wind.speed} m/s</p>
+            `;
+        }
+    </script>
+</body>
+</html>
