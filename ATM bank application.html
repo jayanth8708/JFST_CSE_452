@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM Machine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .atm-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <h1>ATM Machine</h1>
+        <div class="options">
+            <button id="checkBalanceBtn">Check Balance</button>
+            <button id="withdrawBtn">Withdraw Amount</button>
+            <button id="depositBtn">Deposit Amount</button>
+        </div>
+        <div id="pinContainer" class="hidden">
+            <label for="pinInput">Enter ATM PIN:</label>
+            <input type="password" id="pinInput" maxlength="4">
+            <button id="submitPinBtn">Submit</button>
+        </div>
+        <div id="message" class="hidden"></div>
+    </div>
+    <script>
+        const correctPin = "1234"; // Example PIN
+        let balance = parseFloat(localStorage.getItem('balance')) || 1000; // Load balance from localStorage or set default
+
+        document.getElementById('checkBalanceBtn').addEventListener('click', function() {
+            showPinInput('checkBalance');
+        });
+
+        document.getElementById('withdrawBtn').addEventListener('click', function() {
+            showPinInput('withdraw');
+        });
+
+        document.getElementById('depositBtn').addEventListener('click', function() {
+            depositAmount();
+        });
+
+        function showPinInput(action) {
+            document.getElementById('pinContainer').classList.remove('hidden');
+            document.getElementById('message').classList.add('hidden');
+            document.getElementById('submitPinBtn').onclick = function() {
+                validatePin(action);
+            };
+        }
+
+        function validatePin(action) {
+            const enteredPin = document.getElementById('pinInput').value;
+            if (enteredPin === correctPin) {
+                if (action === 'checkBalance') {
+                    displayMessage(`Your balance is $${balance}`);
+                } else if (action === 'withdraw') {
+                    const amount = prompt("Enter amount to withdraw:");
+                    withdrawAmount(amount);
+                }
+            } else {
+                displayMessage("Incorrect PIN. Please try again.");
+            }
+        }
+
+        function withdrawAmount(amount) {
+            amount = parseFloat(amount);
+            if (isNaN(amount) || amount <= 0) {
+                displayMessage("Invalid amount. Please enter a valid number.");
+            } else if (amount > balance) {
+                displayMessage("Insufficient funds.");
+            } else {
+                balance -= amount; // Deduct the amount from balance
+                localStorage.setItem('balance', balance); // Save updated balance to localStorage
+                displayMessage(`You have withdrawn $${amount}. Your new balance is $${balance}.`);
+            }
+        }
+
+        function depositAmount() {
+            const amount = prompt("Enter amount to deposit:");
+            const parsedAmount = parseFloat(amount); // Parse the input amount
+            if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                displayMessage("Invalid amount. Please enter a valid number.");
+            } else {
+                balance += parsedAmount; // Add the amount to balance
+                localStorage.setItem('balance', balance); // Save updated balance to localStorage
+                displayMessage(`You have deposited $${parsedAmount}. Your new balance is $${balance}.`);
+            }
+        }
+
+        function displayMessage(msg) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = msg;
+            messageDiv.classList.remove('hidden');
+            document.getElementById('pinContainer').classList.add('hidden');
+            document.getElementById('pinInput').value = ''; // Clear the input
+        }
+    </script>
+</body>
+</html>
